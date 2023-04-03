@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.*;
 
 public class gui extends JFrame implements ActionListener {
 
@@ -43,7 +44,7 @@ public class gui extends JFrame implements ActionListener {
         add(collegeText);
         add(new JLabel("")); // add an empty label to span 2 columns
         add(submitButton);
-
+        setPreferredSize(new Dimension(500, 300));
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
@@ -57,14 +58,35 @@ public class gui extends JFrame implements ActionListener {
             String dept = deptText.getText();
             String college = collegeText.getText();
 
-            System.out.println("Name: " + name);
-            System.out.println("City: " + city);
-            System.out.println("Age: " + age);
-            System.out.println("Department: " + dept);
-            System.out.println("College: " + college);
+            try {
+                // Connect to MySQL database
+                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/gui", "root", "Kousthubh@mysql");
+
+                // Prepare SQL statement
+                String sql = "INSERT INTO details (name, city, age, dept, college) VALUES (?, ?, ?, ?, ?)";
+                PreparedStatement pstmt = con.prepareStatement(sql);
+                pstmt.setString(1, name);
+                pstmt.setString(2, city);
+                pstmt.setInt(3, age);
+                pstmt.setString(4, dept);
+                
+                pstmt.setString(5, college);
+
+                // Execute SQL statement
+                int rowsInserted = pstmt.executeUpdate();
+                if (rowsInserted > 0) {
+                    JOptionPane.showMessageDialog(null, "Data inserted successfully!");
+                }
+    
+                // Close database connection and statement
+                pstmt.close();
+                con.close();
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+            }
         }
     }
-
+    
     public static void main(String[] args) {
         new gui();
     }
